@@ -1,52 +1,10 @@
 
 
 
+// --------------------- Section: User Permissions -----------------------------
 
-function getUrlVars() {
-    var vars = [], hash;
-    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-    for (var i = 0; i < hashes.length; i++) {
-        hash = hashes[i].split('=');
-        vars.push(hash[0]);
-        vars[hash[0]] = hash[1];
-    }
-    return vars;
-}
-function getQueryString(stringToSearch) {
-    var urlValues = getUrlVars();
-    return urlValues[stringToSearch];
-}
-function checkIfPageEdit() {
-    var urlParams = getUrlVars();
-    // PageView=Shared
-    if ($(".ms-WPAddButton")[0]) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-//Sample Content Type Id = 0x0100BE6C2C36FFF60D418918C6E945776B81008DE373EA54600E4EACB20D61DF1BD17A
-function checkForContentType(contentTypeID) {
-
-    var urlValues = getUrlVars();
-    if (urlValues.ContentTypeId == contentTypeID || urlValues.contenttypeid == contentTypeID) {
-        return true;
-    }
-    return false
-}
-function setDropDownDefult(ddField) {
-    if ($(ddField).find('#emptyOption').length == 0) {
-        $(ddField).append("<option id='emptyOption' selected>--Select--</option>");
-    }
-    else {
-        $(ddField).find('#emptyOption').attr('selected', 'selected');
-    }
-}
-
-
-function GetUserLogin(QuerySuccess, QueryError) {
+//Get current login user data
+function GetUserLogin(successFunction, errorFunction) {
     var userid = _spPageContextInfo.userId;
     var requestUri = _spPageContextInfo.webAbsoluteUrl + "/_api/web/getuserbyid(" + userid + ")";
     var requestHeaders = { "accept": "application/json;odata=verbose" };
@@ -54,11 +12,12 @@ function GetUserLogin(QuerySuccess, QueryError) {
         url: requestUri,
         contentType: "application/json;odata=verbose",
         headers: requestHeaders,
-        success: QuerySuccess,
-        error: QueryError
+        success: successFunction,
+        error: errorFunction
     });
 }
 
+//Get all the permission groups to which the current logged in user belong to
 function GetUserGroups(successFunction, errorFunction) {
     var userIsInGroup = false;
     // debugger
@@ -74,7 +33,24 @@ function GetUserGroups(successFunction, errorFunction) {
 }
 
 
-// SharePoint form related code blocks
+// ----------------------------- Section: Forms -----------------------------
+
+// Add Bootstrap styles to the Form
+function AddBootstrapStylesToForm(formTable) {
+    $('#DeltaPlaceHolderMain').addClass('bootstrap-4');
+    $('#DeltaPlaceHolderMain table').addClass('mx-auto').attr('style', 'width:95%');
+    $('#pageContentTitle').attr("style", "text-align:center !important;width:100% !important");
+    formTable.addClass('container table table-bordered table-striped bootstrap-form-font');
+    formTable.find('input,select,textArea').addClass("form-control");
+    formTable.find('button').addClass("btn btn-primary mb-2");
+    formTable.find('.ms-formlabel').addClass('col-form-label');
+    formTable.find('.ms-formvalidation');
+    formTable.find(".ms-metadata").each(function () {
+        var addWithBreak = $(this).append('<br/><br/>')
+        $(this).parent().prepend(addWithBreak);
+    });
+}
+
 
 //Replace the SharePoint Datepicker with the JQuery-UI datepicker. As the SP Datepicker sets some crazy default date.
 //Requires JQuery-UI
@@ -95,6 +71,9 @@ function ImproveDatePicker(obj) {
     }
 }
 
+
+// Turn your very long form into sections using the Section Headers. Please go through the blog for details
+
 function AddSectionHeaderToForm(headerTitle, sectionStartFieldTitle, addExtraSpace, id) {
     if (addExtraSpace) {
         $('<tr class="bg-white text-light text-center bootstrap-form-font"><td colspan="2"></td></tr>').insertBefore(sectionStartFieldTitle);
@@ -102,7 +81,7 @@ function AddSectionHeaderToForm(headerTitle, sectionStartFieldTitle, addExtraSpa
     $('<tr id=' + id + ' class="bg-primary-dark text-light text-center bootstrap-form-font"><td colspan="2">' + headerTitle + '</td></tr>').insertBefore(sectionStartFieldTitle);
 }
 
-
+// Hide certain sections of the form that are set using above code block
 function HideFormSection(startTr, endTr) {
     if (!startTr.is('tr'))
         startTr = startTr.closest('td.ms-formbody').parent('tr');
@@ -117,6 +96,8 @@ function HideFormSection(startTr, endTr) {
     }
     endTr.addClass('isHidden');
 }
+
+// Show certain sections of the form that are set using above code block
 function ShowFormSection(startTr, endTr) {
     if (!startTr.is('tr'))
         startTr = startTr.closest('td.ms-formbody').parent('tr');
@@ -131,6 +112,9 @@ function ShowFormSection(startTr, endTr) {
     }
     endTr.removeClass('isHidden');
 }
+
+
+// You may also disable the sections of the form that are set using above code block
 function DisableFormSection(startTr, endTr) {
     if (!startTr.is('tr'))
         startTr = startTr.closest('td.ms-formbody').parent('tr');
@@ -148,8 +132,7 @@ function DisableFormSection(startTr, endTr) {
     endTr.find('input,select,textarea').attr('disabled', true).attr('style', 'color: #5a5a5a !important');
 }
 
-//Convert a SP single line field to Phone number field which only accepts number and 10 number
-//Usage: ConverToPhoneNumberField($("input[title^='Requester Phone Number']"))
+//Convert a SP single line field to Phone number field which only accepts number and 10 number (format: 222-222-2222)
 function ConvertSingleLineToPhoneNumberField(fieldToConvert) {
     fieldToConvert.attr('maxlength', 12);
     fieldToConvert.keydown(function (e) {
@@ -167,6 +150,7 @@ function ConvertSingleLineToPhoneNumberField(fieldToConvert) {
     });
 }
 
+//validate the fields for non-blank inputs 
 function ValidateFields(fieldsToValidate) {
     var retVal = false;
     for (var i = 0; i < fieldsToValidate.length; i++) {
@@ -192,7 +176,8 @@ function ValidateFields(fieldsToValidate) {
     return retVal;
 }
 
-function convertSPDateToJSDate(spDate) {
+// Convert SharePoint date to Javascript date
+function ConvertSPDateToJSDate(spDate) {
     var obj = new Object();
     // split apart the date and time
     var xDate = spDate.split(" ")[0];
@@ -206,7 +191,8 @@ function convertSPDateToJSDate(spDate) {
     return obj;
 }
 
-function removeDuplicatesInDropDown(dropDownObject) {
+// Remove duplicates from any html dropdown
+function RemoveDuplicatesInDropDown(dropDownObject) {
     var optionValues = {};
     $(dropDownObject).find('option').each(function () {
         // //console.log($(this).text());
@@ -218,8 +204,8 @@ function removeDuplicatesInDropDown(dropDownObject) {
     });
 }
 
-
-function setDefaultDropDownValue(ddField, ddValue) {
+// Set a default dropdown value may it be "Select"/ "NA"
+function SetDefaultDropDownValue(ddField, ddValue) {
     if ($(ddField).find('#emptyOption').length == 0) {
         $(ddField).append("<option id='emptyOption' selected>--" + ddValue + "--</option>");
     }
@@ -228,7 +214,8 @@ function setDefaultDropDownValue(ddField, ddValue) {
     }
 }
 
-function getFormType() {
+// Check if a form dialog is an edit or new 
+function GetFormType() {
     var action = $('.ms-dlgFrame').contents().find('form').attr('action');
     if (action.indexOf('Mode=Upload') != -1) {
         return "Upload";
@@ -238,7 +225,7 @@ function getFormType() {
     }
 }
 
-
+// Hide Fields in the form
 function HideFields(fieldsToHide) {
     for (var i = 0; i < fieldsToHide.length; i++) {
         var elementTohide = $(fieldsToHide[i].closest('td.ms-formlabel').closest('tr'));
@@ -250,6 +237,7 @@ function HideFields(fieldsToHide) {
     }
 }
 
+// Unhide fields in the form
 function UnHideFields(fieldsToUnhide) {
     for (var i = 0; i < fieldsToUnhide.length; i++) {
         var elementToUnHide = $(fieldsToUnhide[i].closest('td.ms-formlabel').closest('tr'));
@@ -260,168 +248,24 @@ function UnHideFields(fieldsToUnhide) {
         }
     }
 }
+
+// Disable fields
 function DisableFields(arrayOfFieldsToDisable) {
     console.log("DisablingFields");
     for (var i = 0; i < arrayOfFieldsToDisable.length; i++) {
         arrayOfFieldsToDisable[i].closest('td.ms-formbody').find('input,select,textarea').attr('disabled', true).attr('style', 'color: #5a5a5a !important');
     }
 }
+
+// Enable Fields
 function EnableFields(arrayOfFieldsToEnable) {
     for (var i = 0; i < arrayOfFieldsToEnable.length; i++) {
         arrayOfFieldsToEnable[i].closest('td.ms-formbody').find('input,select,textarea').attr('disabled', false).attr('style', 'color: #5a5a5a !important');
     }
 }
 
-
-
-
-
-//Autocomplete function for search
-function autocomplete(inp, arr) {
-    /*the autocomplete function takes two arguments,
-    the text field element and an array of possible autocompleted values:*/
-    var currentFocus;
-    /*execute a function when someone writes in the text field:*/
-    inp.addEventListener("input", function (e) {
-        var a, b, i, val = this.value;
-        /*close any already open lists of autocompleted values*/
-        closeAllLists();
-        if (!val) {
-            return false;
-        }
-        currentFocus = -1;
-        /*create a DIV element that will contain the items (values):*/
-        a = document.createElement("DIV");
-        a.setAttribute("id", this.id + "autocomplete-list");
-        a.setAttribute("class", "autocomplete-items");
-        /*append the DIV element as a child of the autocomplete container:*/
-        this.parentNode.appendChild(a);
-        /*for each item in the array...*/
-        for (i = 0; i < arr.length; i++) {
-            /*check if the item starts with the same letters as the text field value:*/
-            if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-                /*create a DIV element for each matching element:*/
-                b = document.createElement("DIV");
-                /*make the matching letters bold:*/
-                b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-                b.innerHTML += arr[i].substr(val.length);
-                /*insert a input field that will hold the current array item's value:*/
-                b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-                /*execute a function when someone clicks on the item value (DIV element):*/
-                b.addEventListener("click", function (e) {
-                    /*insert the value for the autocomplete text field:*/
-                    inp.value = this.getElementsByTagName("input")[0].value;
-                    // console.log(inp.value);
-                    filterCards(inp.value.toLowerCase());
-                    /*close the list of autocompleted values,
-                    (or any other open lists of autocompleted values:*/
-                    closeAllLists();
-
-                });
-                a.appendChild(b);
-            }
-        }
-    });
-    /*execute a function presses a key on the keyboard:*/
-    inp.addEventListener("keydown", function (e) {
-        var x = document.getElementById(this.id + "autocomplete-list");
-        if (x) x = x.getElementsByTagName("div");
-        if (e.keyCode == 40) {
-            /*If the arrow DOWN key is pressed,
-            increase the currentFocus variable:*/
-            currentFocus++;
-            /*and and make the current item more visible:*/
-            addActive(x);
-        } else if (e.keyCode == 38) { //up
-            /*If the arrow UP key is pressed,
-            decrease the currentFocus variable:*/
-            currentFocus--;
-            /*and and make the current item more visible:*/
-            addActive(x);
-        } else if (e.keyCode == 13) {
-            /*If the ENTER key is pressed, prevent the form from being submitted,*/
-            e.preventDefault();
-            if (currentFocus > -1) {
-                /*and simulate a click on the "active" item:*/
-                if (x) x[currentFocus].click();
-            }
-        }
-    });
-    function addActive(x) {
-        /*a function to classify an item as "active":*/
-        if (!x) return false;
-        /*start by removing the "active" class on all items:*/
-        removeActive(x);
-        if (currentFocus >= x.length) currentFocus = 0;
-        if (currentFocus < 0) currentFocus = (x.length - 1);
-        /*add class "autocomplete-active":*/
-        x[currentFocus].classList.add("autocomplete-active");
-    }
-    function removeActive(x) {
-        /*a function to remove the "active" class from all autocomplete items:*/
-        for (var i = 0; i < x.length; i++) {
-            x[i].classList.remove("autocomplete-active");
-        }
-    }
-    function closeAllLists(elmnt) {
-        /*close all autocomplete lists in the document,
-        except the one passed as an argument:*/
-        var x = document.getElementsByClassName("autocomplete-items");
-        for (var i = 0; i < x.length; i++) {
-            if (elmnt != x[i] && elmnt != inp) {
-                x[i].parentNode.removeChild(x[i]);
-            }
-        }
-    }
-    /*execute a function when someone clicks in the document:*/
-    document.addEventListener("click", function (e) {
-        closeAllLists(e.target);
-    });
-}
-function convertSvgImgsToSVGElements(imgElement) {
-    imgElement.each(function () {
-        var $img = $(this);
-        var imgID = $img.attr('id');
-        var imgClass = $img.attr('class');
-        var imgURL = $img.attr('src');
-        $.get(imgURL, function (data) {
-            // Get the SVG tag, ignore the rest
-            var $svg = $(data).find('svg');
-            // Add replaced image's ID to the new SVG
-            if (typeof imgID !== 'undefined') {
-                $svg = $svg.attr('id', imgID);
-            }
-            // Add replaced image's classes to the new SVG
-            if (typeof imgClass !== 'undefined') {
-                $svg = $svg.attr('class', imgClass + ' replaced-svg');
-            }
-            // Remove any invalid XML tags as per http://validator.w3.org
-            $svg = $svg.removeAttr('xmlns:a');
-            // Replace image with new SVG
-            $img.replaceWith($svg);
-        }, 'xml');
-    });
-}
-function AddBootstrapStylesToForm(formTable) {
-    $('#DeltaPlaceHolderMain').addClass('bootstrap-4');
-    $('#DeltaPlaceHolderMain table').addClass('mx-auto').attr('style', 'width:95%');
-    $('#pageContentTitle').attr("style", "text-align:center !important;width:100% !important");
-    formTable.addClass('container table table-bordered table-striped bootstrap-form-font');
-    // formTable.find('input').addClass("form-control");
-    // formTable.find('select').addClass("form-control");
-    // formTable.find('textArea').addClass("form-control");
-    formTable.find('button').addClass("btn btn-primary mb-2");
-    formTable.find('.ms-formlabel').addClass('col-form-label');
-    formTable.find('.ms-formvalidation');
-    formTable.find(".ms-metadata").each(function () {
-        var addWithBreak = $(this).append('<br/><br/>')
-        $(this).parent().prepend(addWithBreak);
-    });
-}
-
-
-
-function getLocaleDateString(d) {
+// Format the date to local format
+function ConvertToLocaleDateString(d) {
     console.log("Date: " + d);
     var f = {
         "ar-SA": "dd/MM/yy",
@@ -642,4 +486,167 @@ function getLocaleDateString(d) {
     f = f.replace(/MM/, z(m)); f = f.replace(/M/, m);
     f = f.replace(/dd/, z(d)); f = f.replace(/d/, d);
     return f;
+}
+
+
+// ----------------------------- Section: Miscellaneous -----------------------------
+
+//Get all the query strings for current page.
+function getQueryStrings() {
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for (var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
+//Get Query String for the key
+function getQueryString(key) {
+    var urlValues = getUrlVars();
+    return urlValues[key];
+}
+
+//Check if page content type match the parameter
+//Sample Content Type Id = 0x0100BE6C2C36FFF60D418918C6E945776B81008DE373EA54600E4EACB20D61DF1BD17A
+function checkPageContentType(contentTypeID) {
+
+    var urlValues = getUrlVars();
+    if (urlValues.ContentTypeId == contentTypeID || urlValues.contenttypeid == contentTypeID) {
+        return true;
+    }
+    return false
+}
+
+
+//Autocomplete function for search
+function autocomplete(inp, arr) {
+    /*the autocomplete function takes two arguments,
+    the text field element and an array of possible autocompleted values:*/
+    var currentFocus;
+    /*execute a function when someone writes in the text field:*/
+    inp.addEventListener("input", function (e) {
+        var a, b, i, val = this.value;
+        /*close any already open lists of autocompleted values*/
+        closeAllLists();
+        if (!val) {
+            return false;
+        }
+        currentFocus = -1;
+        /*create a DIV element that will contain the items (values):*/
+        a = document.createElement("DIV");
+        a.setAttribute("id", this.id + "autocomplete-list");
+        a.setAttribute("class", "autocomplete-items");
+        /*append the DIV element as a child of the autocomplete container:*/
+        this.parentNode.appendChild(a);
+        /*for each item in the array...*/
+        for (i = 0; i < arr.length; i++) {
+            /*check if the item starts with the same letters as the text field value:*/
+            if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                /*create a DIV element for each matching element:*/
+                b = document.createElement("DIV");
+                /*make the matching letters bold:*/
+                b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                b.innerHTML += arr[i].substr(val.length);
+                /*insert a input field that will hold the current array item's value:*/
+                b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                /*execute a function when someone clicks on the item value (DIV element):*/
+                b.addEventListener("click", function (e) {
+                    /*insert the value for the autocomplete text field:*/
+                    inp.value = this.getElementsByTagName("input")[0].value;
+                    // console.log(inp.value);
+                    filterCards(inp.value.toLowerCase());
+                    /*close the list of autocompleted values,
+                    (or any other open lists of autocompleted values:*/
+                    closeAllLists();
+
+                });
+                a.appendChild(b);
+            }
+        }
+    });
+    /*execute a function presses a key on the keyboard:*/
+    inp.addEventListener("keydown", function (e) {
+        var x = document.getElementById(this.id + "autocomplete-list");
+        if (x) x = x.getElementsByTagName("div");
+        if (e.keyCode == 40) {
+            /*If the arrow DOWN key is pressed,
+            increase the currentFocus variable:*/
+            currentFocus++;
+            /*and and make the current item more visible:*/
+            addActive(x);
+        } else if (e.keyCode == 38) { //up
+            /*If the arrow UP key is pressed,
+            decrease the currentFocus variable:*/
+            currentFocus--;
+            /*and and make the current item more visible:*/
+            addActive(x);
+        } else if (e.keyCode == 13) {
+            /*If the ENTER key is pressed, prevent the form from being submitted,*/
+            e.preventDefault();
+            if (currentFocus > -1) {
+                /*and simulate a click on the "active" item:*/
+                if (x) x[currentFocus].click();
+            }
+        }
+    });
+    function addActive(x) {
+        /*a function to classify an item as "active":*/
+        if (!x) return false;
+        /*start by removing the "active" class on all items:*/
+        removeActive(x);
+        if (currentFocus >= x.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (x.length - 1);
+        /*add class "autocomplete-active":*/
+        x[currentFocus].classList.add("autocomplete-active");
+    }
+    function removeActive(x) {
+        /*a function to remove the "active" class from all autocomplete items:*/
+        for (var i = 0; i < x.length; i++) {
+            x[i].classList.remove("autocomplete-active");
+        }
+    }
+    function closeAllLists(elmnt) {
+        /*close all autocomplete lists in the document,
+        except the one passed as an argument:*/
+        var x = document.getElementsByClassName("autocomplete-items");
+        for (var i = 0; i < x.length; i++) {
+            if (elmnt != x[i] && elmnt != inp) {
+                x[i].parentNode.removeChild(x[i]);
+            }
+        }
+    }
+    /*execute a function when someone clicks in the document:*/
+    document.addEventListener("click", function (e) {
+        closeAllLists(e.target);
+    });
+}
+
+
+// Convert an SVG image from url to an actual svg where you can adjust the styles
+function convertSvgImgsToSVGElements(imgElement) {
+    imgElement.each(function () {
+        var $img = $(this);
+        var imgID = $img.attr('id');
+        var imgClass = $img.attr('class');
+        var imgURL = $img.attr('src');
+        $.get(imgURL, function (data) {
+            // Get the SVG tag, ignore the rest
+            var $svg = $(data).find('svg');
+            // Add replaced image's ID to the new SVG
+            if (typeof imgID !== 'undefined') {
+                $svg = $svg.attr('id', imgID);
+            }
+            // Add replaced image's classes to the new SVG
+            if (typeof imgClass !== 'undefined') {
+                $svg = $svg.attr('class', imgClass + ' replaced-svg');
+            }
+            // Remove any invalid XML tags as per http://validator.w3.org
+            $svg = $svg.removeAttr('xmlns:a');
+            // Replace image with new SVG
+            $img.replaceWith($svg);
+        }, 'xml');
+    });
 }
