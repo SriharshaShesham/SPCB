@@ -10,4 +10,4 @@
 
 # What you can do with SPCB?
 
-### I will be posting some of the beautiful UI components that you can implement for SharePoint using the SPCB and other good practices at http://blog.sheshams.in
+### I will be posting some of the beautiful UI components that you can implement for SharePoint using the SPCB and other good practices in [my blog] (http://blog.sheshams.in)
