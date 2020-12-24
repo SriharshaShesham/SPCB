@@ -1,6 +1,6 @@
 # **Welcome to SharePoint Code Blocks (SPCB)**
 
-<img src="assets/SPCB.jpg" alt="drawing" width="500"/>
+<img align="center" src="assets/SPCB.jpg" alt="drawing" width="500"/>
 
 # What is SPCB?
 
