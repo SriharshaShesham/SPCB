@@ -1,6 +1,6 @@
 # **Welcome to SharePoint Code Blocks (SPCB)**
 
-![](assets/SPCB.jpg =250x)
+<img src="assets/SPCB.jpg" alt="drawing" width="200"/>
 
 # What is SPCB?
 
