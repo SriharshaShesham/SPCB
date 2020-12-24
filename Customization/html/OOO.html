@@ -1,0 +1,40 @@
+<!-- Initialize JQuery and SPCB  -->
+<script type="text/javascript" src="/sites/SPCB/Customization/js/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="/sites/SPCB/Customization/js/SPCB.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+
+        // Initialize form fields
+           
+            var fieldTitle = $('input[title^="Title"]');
+            var fieldDescription = $('textarea[title^="Description"]');
+            var fieldPhoneNumber = $('input[title^="PhoneNumber"]');
+            var fieldDecision = $('select[title^="Decision"]');
+            var fieldDecisionComments = $('textarea[title^="DecisionComments"]');
+            var fieldStartDate=$('input[title^="StartDate"]');
+            var fieldEndDate=$('input[title^="EndDate"]');
+
+        // SPCB function
+        // ConvertSingleLineToPhoneNumberField function turns a SharePoint singleline field to a phone number field forcing format 999-999-9999
+        ConvertSingleLineToPhoneNumberField(fieldPhoneNumber);
+
+        // SPCB function
+        // CheckIfPageIsEditForm function returns true if the page is a edit form
+        // Run the code only if the form is a new form. 
+        if(CheckIfPageIsEditForm() ==false)
+        {
+            // SPCB function
+            // Hides the fields in the array
+            HideFields([fieldDecision,fieldDecisionComments]);
+        }
+        // Run the code below for the edit form
+        else
+        {
+            // SPCB function
+            // DisableFields function disables the fields in the array
+            DisableFields([fieldTitle,fieldDescription,fieldPhoneNumber,fieldStartDate,fieldEndDate]);
+        }
+    });
+</script>

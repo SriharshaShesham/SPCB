@@ -214,8 +214,20 @@ function SetDefaultDropDownValue(ddField, ddValue) {
     }
 }
 
-// Check if a form dialog is an edit or new 
-function GetFormType() {
+
+function CheckIfPageIsEditForm() {
+    var url=window.location.href;
+    // PageView=Shared
+    if (url.indexOf("EditForm")>-1) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+// Get form dialog type if edit or new 
+function GetDialogFormType() {
     var action = $('.ms-dlgFrame').contents().find('form').attr('action');
     if (action.indexOf('Mode=Upload') != -1) {
         return "Upload";
@@ -492,7 +504,7 @@ function ConvertToLocaleDateString(d) {
 // ----------------------------- Section: Miscellaneous -----------------------------
 
 //Get all the query strings for current page.
-function getQueryStrings() {
+function GetQueryStrings() {
     var vars = [], hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
     for (var i = 0; i < hashes.length; i++) {
@@ -504,14 +516,14 @@ function getQueryStrings() {
 }
 
 //Get Query String for the key
-function getQueryString(key) {
-    var urlValues = getUrlVars();
+function GetQueryString(key) {
+    var urlValues = GetQueryStrings();
     return urlValues[key];
 }
 
 //Check if page content type match the parameter
 //Sample Content Type Id = 0x0100BE6C2C36FFF60D418918C6E945776B81008DE373EA54600E4EACB20D61DF1BD17A
-function checkPageContentType(contentTypeID) {
+function CheckPageContentType(contentTypeID) {
 
     var urlValues = getUrlVars();
     if (urlValues.ContentTypeId == contentTypeID || urlValues.contenttypeid == contentTypeID) {
@@ -522,7 +534,7 @@ function checkPageContentType(contentTypeID) {
 
 
 //Autocomplete function for search
-function autocomplete(inp, arr) {
+function Autocomplete(inp, arr) {
     /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
     var currentFocus;
@@ -626,7 +638,7 @@ function autocomplete(inp, arr) {
 
 
 // Convert an SVG image from url to an actual svg where you can adjust the styles
-function convertSvgImgsToSVGElements(imgElement) {
+function ConvertSvgImgsToSVGElements(imgElement) {
     imgElement.each(function () {
         var $img = $(this);
         var imgID = $img.attr('id');
