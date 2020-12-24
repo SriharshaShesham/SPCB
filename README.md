@@ -1,5 +1,7 @@
 # **Welcome to SharePoint Code Blocks (SPCB)**
 
+:::image type="content" source="assets/SPCB.jpg" alt-text="SPCB":::
+
 # What is SPCB?
 
 ### SharePoint Code Blocks(SPCB) hosts various code blocks a.k.a functions that I have been using over the years which I think can help any SharePoint developer to accomplish most of the common requirements with ease.
