@@ -1,6 +1,6 @@
 # **Welcome to SharePoint Code Blocks (SPCB)**
 
-:::image type="content" source="assets/SPCB.jpg" alt-text="SPCB":::
+![SPCB](assets/SPCB.jpg)
 
 # What is SPCB?
 
